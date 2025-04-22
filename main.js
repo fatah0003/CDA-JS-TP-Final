@@ -12,30 +12,37 @@ const words = [
 ];
 
 const word = words[Math.floor(Math.random() * words.length)];
-console.log(word);
+console.log("Mot à deviner :", word); // à enlever
 
 let nmbTry = 5;
-
-let lettersPlayer = []
+let lettersPlayer = [];
 
 addEventListener("keydown", (event) => {
-    lettersPlayer.push(event.key)
-    return lettersPlayer
-});
+    const key = event.key.toLowerCase();
 
-addEventListener("keypress", (event) => {
-    if (lettersPlayer.length != 5) {
-        console.log("il faut entrer 5 lettres");
+    // Filtre : lettres uniquement (a-z)
+    if (!/^[a-z]$/.test(key)) return;
 
-    } else if (lettersPlayer.join("") != word) {
-        console.log("try again");
-        nmbTry--
-        console.log(nmbTry);
-        lettersPlayer = []
-    } else {
-        console.log("Trouvé le mot est " + lettersPlayer.join(""));
-
+    // On ajoute la lettre si on n’a pas encore 5
+    if (lettersPlayer.length < 5) {
+        lettersPlayer.push(key);
+        console.log("Lettres saisies :", lettersPlayer.join(""));
     }
 
+    // Une fois 5 lettres, on vérifie
+    if (lettersPlayer.length === 5) {
+        if (lettersPlayer.join("") === word) {
+            console.log("🎉 Bravo ! Le mot est :", word);
+        } else {
+            console.log("❌ Mauvais mot. Essaye encore !");
+            nmbTry--;
+            console.log("Essais restants :", nmbTry);
+            if (nmbTry === 0) {
+                console.log("💀 Perdu ! Le mot était :", word);
+            }
+        }
 
+        // On réinitialise pour une nouvelle tentative
+        lettersPlayer = [];
+    }
 });
