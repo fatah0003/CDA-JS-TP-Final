@@ -1,0 +1,25 @@
+.grille-lettres {
+    display: grid;
+    grid-template-columns: repeat(5, 50px);
+    grid-template-rows: repeat(5, 50px);
+    gap: 5px;
+    margin: 20px;
+  }
+  
+  .case {
+    width: 50px;
+    height: 50px;
+    border: 2px solid #ccc;
+    font-size: 24px;
+    text-align: center;
+    line-height: 50px;
+    text-transform: uppercase;
+    background-color: white;
+  }
+  .case_valide {
+    background-color: green;
+  }
+  .case_place{
+    background-color: blue;
+  }
+  
