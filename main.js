@@ -20,7 +20,7 @@ async function getWord() {
         console.log(word);
         console.log(lengthword);
 
-        // Appeler initGrille ici, une fois que le mot est prêt
+
         initGrille();
     } catch (error) {
         console.error("Erreur :", error);
