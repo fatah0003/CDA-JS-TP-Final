@@ -11,6 +11,34 @@ let gameOver = false;
 let ligneActuelle = 0;
 const grille = document.getElementById("grille");
 
+const clavier = document.createElement("div");
+clavier.id = "clavier";
+document.body.appendChild(clavier);
+
+const lignesClavier = [
+    ["A", "Z", "E", "R", "T", "Y", "U", "I", "O", "P"],
+    ["Q", "S", "D", "F", "G", "H", "J", "K", "L", "M"],
+    ["Entrer", "W", "X", "C", "V", "B", "N", "Supprimer"]
+];
+
+lignesClavier.forEach(ligne => {
+    const divLigne = document.createElement("div");
+    divLigne.classList.add("ligne");
+
+    ligne.forEach(touche => {
+        const btn = document.createElement("button");
+        btn.classList.add("touche");
+        btn.setAttribute("data-key", touche.toLocaleLowerCase());
+        if (touche === "Entrer" || touche === "Supprimer") {
+            btn.classList.add("touche-action");
+        }
+        btn.textContent = touche;
+        divLigne.appendChild(btn);
+    });
+    
+    clavier.appendChild(divLigne);
+});
+
 // ⬇️ Initialise la grille
 function initGrille() {
     for (let i = 0; i < 25; i++) {
@@ -42,12 +70,27 @@ function verifierMot() {
     const motTape = lettersPlayer.join("");
     const caseKey = document.querySelectorAll('.case');
 
+    // Parcours des lettres pour vérifier chaque caractère
     for (let i = 0; i < word.length; i++) {
         const x = ligneActuelle * 5 + i;
+        const toucheClique = document.querySelector(`.touche[data-key="${lettersPlayer[i]}"]`);
+        // Vérification de la correspondance entre la lettre tapée et celle du mot
         if (lettersPlayer[i] === word[i]) {
             caseKey[x].classList.add('case_valide');
+            if (toucheClique) {
+                toucheClique.classList.add('case_valide');
+            }
         } else if (word.includes(lettersPlayer[i])) {
             caseKey[x].classList.add('case_place');
+            if (toucheClique) {
+                toucheClique.classList.add('case_place');
+            }
+        } else {
+            // Si la lettre n'est pas dans le mot
+            
+            if (toucheClique) {
+                toucheClique.classList.add('case_wrong');
+            }
         }
     }
 
@@ -66,6 +109,7 @@ function verifierMot() {
     lettersPlayer = [];
     ligneActuelle++;
 }
+
 
 initGrille();
 
@@ -90,33 +134,6 @@ addEventListener("keydown", (event) => {
         }
         verifierMot();
     }
-});
-
-const clavier = document.createElement("div");
-clavier.id = "clavier";
-document.body.appendChild(clavier);
-
-const lignesClavier = [
-    ["A", "Z", "E", "R", "T", "Y", "U", "I", "O", "P"],
-    ["Q", "S", "D", "F", "G", "H", "J", "K", "L", "M"],
-    ["Entrer", "W", "X", "C", "V", "B", "N", "Supprimer"]
-];
-
-lignesClavier.forEach(ligne => {
-    const divLigne = document.createElement("div");
-    divLigne.classList.add("ligne");
-
-    ligne.forEach(touche => {
-        const btn = document.createElement("button");
-        btn.classList.add("touche");
-        if (touche === "Entrer" || touche === "Supprimer") {
-            btn.classList.add("touche-action");
-        }
-        btn.textContent = touche;
-        divLigne.appendChild(btn);
-    });
-
-    clavier.appendChild(divLigne);
 });
 
 document.addEventListener("click", (event) => {
