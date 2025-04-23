@@ -8,20 +8,26 @@
 // --------------------------
 
 // Utilser une API externe pour le mot à trouver 
-const BASE_URL = "https://trouve-mot.fr/api/size/5"
+const BASE_URL = "https://trouve-mot.fr/api/random"
 let word;
+let lengthword = 0
 async function getWord() {
     try {
-      const response = await fetch(BASE_URL);
-      const data = await response.json();
-      word = data[0].name
-      console.log(word);
+        const response = await fetch(BASE_URL);
+        const data = await response.json();
+        word = data[0].name;
+        lengthword = word.length;
+        console.log(word);
+        console.log(lengthword);
+
+        // Appeler initGrille ici, une fois que le mot est prêt
+        initGrille();
     } catch (error) {
-      console.error("Erreur :", error);
+        console.error("Erreur :", error);
     }
-  }
-  
-  getWord();
+}
+
+getWord();
 
 let nmbTry = 5;
 let lettersPlayer = [];
@@ -53,23 +59,31 @@ lignesClavier.forEach(ligne => {
         btn.textContent = touche;
         divLigne.appendChild(btn);
     });
-    
+
     clavier.appendChild(divLigne);
 });
 
 // ⬇️ Initialise la grille
 function initGrille() {
-    for (let i = 0; i < 25; i++) {
+    grille.innerHTML = "";
+    grille.style.display = "grid";
+    grille.style.gridTemplateColumns = `repeat(${lengthword}, 50px)`;
+    grille.style.gridTemplateRows = `repeat(5, 50px)`; // 5 essais
+
+    for (let i = 0; i < 5 * lengthword; i++) {
         const caseLettre = document.createElement("div");
         caseLettre.classList.add("case");
         grille.appendChild(caseLettre);
     }
 }
 
+
+
+
 // ⬇️ Affiche une lettre dans la bonne case
 function afficherLettre(key) {
     const caseKey = document.querySelectorAll('.case');
-    const x = ligneActuelle * 5 + lettersPlayer.length - 1;
+    const x = ligneActuelle * lengthword + lettersPlayer.length - 1;
     caseKey[x].innerText = key;
 }
 
@@ -78,7 +92,7 @@ function supprimerDerniereLettre() {
     if (lettersPlayer.length > 0) {
         lettersPlayer.pop();
         const caseKey = document.querySelectorAll('.case');
-        const x = ligneActuelle * 5 + lettersPlayer.length;
+        const x = ligneActuelle * lengthword + lettersPlayer.length;
         caseKey[x].innerText = "";
     }
 }
@@ -87,31 +101,64 @@ function supprimerDerniereLettre() {
 function verifierMot() {
     const motTape = lettersPlayer.join("");
     const caseKey = document.querySelectorAll('.case');
+    const toucheUtilisees = Array(word.length).fill(false);
 
-    // Parcours des lettres pour vérifier chaque caractère
-    for (let i = 0; i < word.length; i++) {
-        const x = ligneActuelle * 5 + i;
-        const toucheClique = document.querySelector(`.touche[data-key="${lettersPlayer[i]}"]`);
-        // Vérification de la correspondance entre la lettre tapée et celle du mot
-        if (lettersPlayer[i] === word[i]) {
-            caseKey[x].classList.add('case_valide');
-            if (toucheClique) {
-                toucheClique.classList.add('case_valide');
-            }
-        } else if (word.includes(lettersPlayer[i])) {
-            caseKey[x].classList.add('case_place');
-            if (toucheClique) {
-                toucheClique.classList.add('case_place');
-            }
-        } else {
-            // Si la lettre n'est pas dans le mot
-            
-            if (toucheClique) {
-                toucheClique.classList.add('case_wrong');
-            }
+    function colorerTouche(toucheClique, classe) {
+        if (!toucheClique) return;
+
+        // Ne pas écraser une couleur plus forte
+        const dejaValide = toucheClique.classList.contains('case_valide');
+        const dejaPlace = toucheClique.classList.contains('case_place');
+
+        if (classe === 'case_valide' ||
+            (classe === 'case_place' && !dejaValide) ||
+            (classe === 'case_wrong' && !dejaValide && !dejaPlace)) {
+            toucheClique.classList.remove('case_wrong', 'case_place', 'case_valide');
+            toucheClique.classList.add(classe);
         }
     }
 
+    // 1ère passe : lettres bien placées
+    for (let i = 0; i < word.length; i++) {
+        const x = ligneActuelle * lengthword + i;
+        const toucheClique = document.querySelector(`.touche[data-key="${lettersPlayer[i]}"]`);
+
+        if (lettersPlayer[i] === word[i]) {
+            caseKey[x].classList.add('case_valide');
+            colorerTouche(toucheClique, 'case_valide');
+            toucheUtilisees[i] = true; // marquer comme utilisée
+        }
+    }
+
+    // 2ème passe : lettres mal placées ou absentes
+    for (let i = 0; i < word.length; i++) {
+        const x = ligneActuelle * lengthword + i;
+        const lettre = lettersPlayer[i];
+
+        // Passer si déjà traitée comme "bien placée"
+        if (lettre === word[i]) continue;
+
+        const toucheClique = document.querySelector(`.touche[data-key="${lettre}"]`);
+        let found = false;
+
+        for (let j = 0; j < word.length; j++) {
+            if (!toucheUtilisees[j] && lettre === word[j]) {
+                found = true;
+                toucheUtilisees[j] = true;
+                break;
+            }
+        }
+
+        if (found) {
+            caseKey[x].classList.add('case_place');
+            colorerTouche(toucheClique, 'case_place');
+        } else {
+            caseKey[x].classList.add('case_wrong');
+            colorerTouche(toucheClique, 'case_wrong');
+        }
+    }
+
+    // Fin du tour
     if (motTape === word) {
         console.log("🎉 Bravo ! Le mot est :", word);
         gameOver = true;
@@ -128,7 +175,6 @@ function verifierMot() {
     ligneActuelle++;
 }
 
-
 initGrille();
 
 addEventListener("keydown", (event) => {
@@ -136,7 +182,7 @@ addEventListener("keydown", (event) => {
 
     const key = event.key.toLowerCase();
 
-    if (/^[a-z]$/.test(key) && lettersPlayer.length < 5) {
+    if (/^[a-z]$/.test(key) && lettersPlayer.length < lengthword) {
         lettersPlayer.push(key);
         afficherLettre(key);
     }
@@ -146,8 +192,8 @@ addEventListener("keydown", (event) => {
     }
 
     if (event.key === "Enter") {
-        if (lettersPlayer.length !== 5) {
-            console.log("⛔ Il faut entrer 5 lettres avant de valider !");
+        if (lettersPlayer.length !== lengthword) {
+            console.log("⛔ Il faut entrer " + lengthword + " lettres avant de valider !");
             return;
         }
         verifierMot();
