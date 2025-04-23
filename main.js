@@ -1,10 +1,28 @@
-const words = [
-    "pomme", "livre", "table", "chien", "glace", "plage", "rouge", "vertu", "brume", "fleur",
-    "arbre", "blaze", "roche", "salut", "porte", "peine", "valet", "nuit", "foyer",
-    "farce", "panne", "frais", "chose", "flore", "vague", "tigre", "pince", "sable"
-];
+// const words = [
+//     "pomme", "livre", "table", "chien", "glace", "plage", "rouge", "vertu", "brume", "fleur",
+//     "arbre", "blaze", "roche", "salut", "porte", "peine", "valet", "nuit", "foyer",
+//     "farce", "panne", "frais", "chose", "flore", "vague", "tigre", "pince", "sable"
+// ];
 
-const word = words[Math.floor(Math.random() * words.length)];
+// const word = words[Math.floor(Math.random() * words.length)];
+// --------------------------
+
+// Utilser une API externe pour le mot à trouver 
+const BASE_URL = "https://trouve-mot.fr/api/size/5"
+let word;
+async function getWord() {
+    try {
+      const response = await fetch(BASE_URL);
+      const data = await response.json();
+      word = data[0].name
+      console.log(word);
+    } catch (error) {
+      console.error("Erreur :", error);
+    }
+  }
+  
+  getWord();
+
 let nmbTry = 5;
 let lettersPlayer = [];
 let gameOver = false;
