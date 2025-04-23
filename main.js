@@ -11,16 +11,19 @@
 const BASE_URL = "https://trouve-mot.fr/api/random"
 let word;
 let lengthword = 0
+
+function removeAccents(str) {
+    return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  }
+
 async function getWord() {
     try {
         const response = await fetch(BASE_URL);
         const data = await response.json();
-        word = data[0].name;
+        word = removeAccents(data[0].name)
         lengthword = word.length;
         console.log(word);
-        console.log(lengthword);
-
-
+        
         initGrille();
     } catch (error) {
         console.error("Erreur :", error);
@@ -68,7 +71,7 @@ function initGrille() {
     grille.innerHTML = "";
     grille.style.display = "grid";
     grille.style.gridTemplateColumns = `repeat(${lengthword}, 50px)`;
-    grille.style.gridTemplateRows = `repeat(5, 50px)`; // 5 essais
+    grille.style.gridTemplateRows = `repeat(5, 50px)`;
 
     for (let i = 0; i < 5 * lengthword; i++) {
         const caseLettre = document.createElement("div");
