@@ -1,3 +1,8 @@
+main{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
 .grille-lettres {
     display: grid;
     grid-template-columns: repeat(5, 50px);
@@ -20,6 +25,44 @@
     background-color: green;
   }
   .case_place{
-    background-color: blue;
+    background-color: orange;
   }
+
+  #clavier {
+    margin-top: 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.ligne {
+    display: flex;
+    gap: 6px;
+}
+
+.touche {
+    background-color: #eee;
+    border: none;
+    padding: 12px 14px;
+    border-radius: 6px;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.touche:hover {
+    background-color: #ddd;
+}
+
+.touche:active {
+    transform: scale(0.95);
+}
+
+.touche-action {
+    padding: 12px 18px;
+    background-color: #d1d5db;
+}
+
   
